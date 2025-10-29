@@ -1,0 +1,40 @@
+# Compilados y build
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDEs
+.idea/
+.vscode/
+.project
+.classpath
+.settings/
+*.iml
+*.iws
+*.ipr
+bin/
+out/
+
+# Logs
+*.log
+logs/
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db
+
+# Archivos temporales
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# Archivos extras NO requeridos para el proyecto
+docs/
+*.ps1
+*.sh
+README.en.md
+PROYECTO-RESUMEN.md
+QUICKSTART.md

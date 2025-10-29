@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Servicio de SQL Server
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-productos
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:-YourStrong@Passw0rd}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - productos-network
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$${MSSQL_SA_PASSWORD}" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+
+  # Servicio de la API REST
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: productos-api
+    environment:
+      - DB_URL=jdbc:sqlserver://sqlserver:1433;databaseName=ProductosDB;encrypt=true;trustServerCertificate=true
+      - DB_USERNAME=sa
+      - DB_PASSWORD=${MSSQL_SA_PASSWORD:-YourStrong@Passw0rd}
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "8080:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - productos-network
+    restart: on-failure
+
+# Volúmenes para persistencia de datos
+volumes:
+  sqlserver-data:
+    driver: local
+
+# Red para comunicación entre contenedores
+networks:
+  productos-network:
+    driver: bridge
