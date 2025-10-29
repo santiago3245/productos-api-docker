@@ -249,17 +249,6 @@ El Dockerfile utiliza un **build multi-etapa** para optimizar el tamaño de la i
 1. **Etapa de Build**: Usa Maven para compilar la aplicación
 2. **Etapa de Runtime**: Usa una imagen ligera de JRE para ejecutar el JAR
 
-### Ventajas:
-- ✅ Imagen final más pequeña (~200MB vs ~600MB)
-- ✅ Mejor seguridad (solo runtime, sin herramientas de build)
-- ✅ Más rápida de descargar y desplegar
-
-## 🔐 Seguridad
-
-- El contenedor de la API corre con un usuario no-root
-- Las conexiones a SQL Server usan TLS (trustServerCertificate=true para desarrollo)
-- Las credenciales se manejan mediante variables de entorno
-
 ## 🧪 Testing
 
 Puedes usar **Postman**, **Thunder Client** (VS Code) o **curl** para probar los endpoints.
@@ -291,8 +280,6 @@ Si modificas el código de la API:
 # Reconstruir y reiniciar solo la API
 docker-compose up --build api
 ```
-
-## 🐛 Troubleshooting
 
 ### ¿Por qué necesito ejecutar el script init.sql manualmente?
 
@@ -331,36 +318,3 @@ ports:
   - "1434:1433"  # Para SQL Server
 ```
 
-### Error de memoria en Docker
-
-Aumenta la memoria asignada a Docker Desktop (Settings → Resources → Memory).
-
-## 👨‍💻 Autor
-
-Santiago - Proyecto de Contenerización de API REST
-
-## 📄 Licencia
-
-Este proyecto es de código abierto y está disponible para fines educativos.
-
----
-
-## 🎯 Evidencias de Funcionamiento
-
-### 1. Contenedores corriendo
-![Docker Containers](docs/screenshots/containers.png)
-
-### 2. API Health Check
-![API Health](docs/screenshots/health.png)
-
-### 3. CRUD Operations
-![CRUD Operations](docs/screenshots/crud.png)
-
-### 4. Base de datos
-![Database](docs/screenshots/database.png)
-
----
-
-**¡La API está lista para usar!** 🚀
-
-Para cualquier duda o problema, revisa la sección de Troubleshooting o abre un issue en el repositorio.
