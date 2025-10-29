@@ -134,54 +134,81 @@ sqlserver-productos   Up (healthy)    0.0.0.0:1433->1433/tcp
 
 ### Paso 6: Probar la API
 
+Puedes probar la API de dos formas:
+
+#### **Opción A: Desde tu navegador web (solo GET)**
+Abre tu navegador y visita:
+```
+http://localhost:8080/api/productos
+http://localhost:8080/api/productos/health
+```
+
+#### **Opción B: Usando comandos Docker (con `wget`)**
+
 **Health Check:**
 ```powershell
-curl http://localhost:8080/api/productos/health
+docker exec -it productos-api wget -qO- http://localhost:8080/api/productos/health
 ```
 
 **Obtener todos los productos:**
 ```powershell
-curl http://localhost:8080/api/productos
-```
-
-**Crear un nuevo producto:**
-```powershell
-curl -X POST http://localhost:8080/api/productos `
-  -H "Content-Type: application/json" `
-  -d '{
-    "nombre": "Nuevo Producto",
-    "descripcion": "Descripción del producto",
-    "precio": 99.99,
-    "stock": 50
-  }'
+docker exec -it productos-api wget -qO- http://localhost:8080/api/productos
 ```
 
 **Obtener producto por ID:**
 ```powershell
-curl http://localhost:8080/api/productos/1
-```
-
-**Actualizar un producto:**
-```powershell
-curl -X PUT http://localhost:8080/api/productos/1 `
-  -H "Content-Type: application/json" `
-  -d '{
-    "nombre": "Producto Actualizado",
-    "descripcion": "Nueva descripción",
-    "precio": 149.99,
-    "stock": 30
-  }'
-```
-
-**Eliminar un producto:**
-```powershell
-curl -X DELETE http://localhost:8080/api/productos/1
+docker exec -it productos-api wget -qO- http://localhost:8080/api/productos/1
 ```
 
 **Buscar productos por nombre:**
 ```powershell
-curl "http://localhost:8080/api/productos/buscar?nombre=laptop"
+docker exec -it productos-api wget -qO- "http://localhost:8080/api/productos/buscar?nombre=laptop"
 ```
+
+**Crear un nuevo producto (INSERT con SQL):**
+```powershell
+docker exec -it sqlserver-productos /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "1234" -C -Q "INSERT INTO ProductosDB.dbo.productos (nombre, descripcion, precio, stock, fecha_creacion, fecha_actualizacion) VALUES (N'Nuevo Producto', N'Descripción del producto', 99.99, 50, GETDATE(), GETDATE())"
+```
+
+**Actualizar un producto (UPDATE con SQL):**
+```powershell
+docker exec -it sqlserver-productos /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "1234" -C -Q "UPDATE ProductosDB.dbo.productos SET nombre='Producto Actualizado', precio=199.99, stock=20 WHERE id=1"
+```
+
+**Eliminar un producto (DELETE con SQL):**
+```powershell
+docker exec -it sqlserver-productos /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "1234" -C -Q "DELETE FROM ProductosDB.dbo.productos WHERE id=11"
+```
+
+> **Nota:** Los comandos `docker exec` funcionan desde **cualquier ubicación** en tu sistema, no necesitas estar en la carpeta del proyecto.
+
+#### **Opción C: Consultas SQL directas**
+
+También puedes consultar y manipular la base de datos directamente:
+
+```powershell
+# Ver todos los productos
+docker exec -it sqlserver-productos /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "1234" -C -Q "SELECT * FROM ProductosDB.dbo.productos"
+
+# Buscar producto por ID
+docker exec -it sqlserver-productos /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "1234" -C -Q "SELECT * FROM ProductosDB.dbo.productos WHERE id=1"
+
+# Contar productos
+docker exec -it sqlserver-productos /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "1234" -C -Q "SELECT COUNT(*) AS total FROM ProductosDB.dbo.productos"
+```
+
+> **Nota:** Los comandos `docker exec` funcionan desde **cualquier ubicación** en tu sistema, no necesitas estar en la carpeta del proyecto.
+
+# Eliminar producto por ID (con SQL)
+docker exec -it sqlserver-productos /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "1234" -C -Q "DELETE FROM ProductosDB.dbo.productos WHERE id=11"
+```
+
+**Buscar productos por nombre:**
+```powershell
+docker exec -it productos-api wget -qO- "http://localhost:8080/api/productos/buscar?nombre=laptop"
+```
+
+> **Nota:** Los comandos `docker exec` funcionan desde **cualquier ubicación** en tu sistema, no necesitas estar en la carpeta del proyecto.
 
 ## 🛠️ Comandos Docker Útiles
 
